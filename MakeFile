@@ -1,0 +1,39 @@
+# Makefile para Multi-Agent-Research-Lab
+# Usa: make <target>
+# Targets: install, pull_models, run_researcher, run_critic, shell, clean
+
+# Variables de entorno
+POETRY = poetry
+OLLAMA = ollama
+PYTHON_FILE = src/llm_config.py
+
+# Instalar dependencias del proyecto
+install:
+	$(POETRY) install
+	$(POETRY) add langchain langchain-community langchain-ollama langgraph ollama langfuse
+
+# Descargar modelos Ollama
+pull_models:
+	$(OLLAMA) pull llama3.2:3b
+	$(OLLAMA) pull phi4-mini
+
+# Abrir shell de Poetry
+shell:
+	$(POETRY) shell
+
+# Ejecutar script de configuración LLM
+run_config:
+	$(POETRY) run python $(PYTHON_FILE)
+
+# Ejecutar researcher directamente
+run_researcher:
+	$(POETRY) run python -c "from langchain_ollama import ChatOllama; llm = ChatOllama(model='llama3.2:3b'); print(llm.invoke('Explain RAG in one paragraph'))"
+
+# Ejecutar critic directamente
+run_critic:
+	$(POETRY) run python -c "from langchain_ollama import ChatOllama; llm = ChatOllama(model='phi4-mini'); print(llm.invoke('Critique a research plan'))"
+
+# Limpiar entorno de Poetry
+clean:
+	$(POETRY) env remove python
+	rm -rf .venv

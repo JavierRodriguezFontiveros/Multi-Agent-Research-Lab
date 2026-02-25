@@ -145,3 +145,50 @@ python main.py --query "Explica las vulnerabilidades de reentrada en Solidity"
 # 📜 Licencia
 
 MIT License
+
+
+
+
+
+http://localhost:11434/api/tags con esto puedo ver mis modelos:
+
+{
+"models": [
+{
+"name": "phi4-mini:latest",
+"model": "phi4-mini:latest",
+"modified_at": "2026-02-24T09:36:19.5976155+01:00",
+"size": 2491876774,
+"digest": "78fad5d182a7c33065e153a5f8ba210754207ba9d91973f57dffa7f487363753",
+"details": {
+"parent_model": "",
+"format": "gguf",
+"family": "phi3",
+"families": [
+"phi3"
+],
+"parameter_size": "3.8B",
+"quantization_level": "Q4_K_M"
+}
+},
+{
+"name": "llama3.2:3b",
+"model": "llama3.2:3b",
+"modified_at": "2026-02-24T09:32:35.6753865+01:00",
+"size": 2019393189,
+"digest": "a80c4f17acd55265feec403c7aef86be0c25983ab279d83f3bcd3abbcb5b8b72",
+"details": {
+"parent_model": "",
+"format": "gguf",
+"family": "llama",
+"families": [
+"llama"
+],
+"parameter_size": "3.2B",
+"quantization_level": "Q4_K_M"
+}
+}
+]
+}
+
+ollama no funcionó por temas de gpu y tuve que usar modelos mas pequeños de Hugging Face
