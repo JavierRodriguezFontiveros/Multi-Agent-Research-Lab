@@ -1,224 +1,89 @@
-# 🛡️ Multi-Agent-Research-Lab
+# 🛡️ Multi-Agent-Research-Lab  
+## Agentic-RAG-OS: Self-Correcting Research Pipeline
 
-**Agentic-RAG-OS: Self-Correcting Research Pipeline**
+![texto_alternativo](images/nanobanana.png)
 
-Este proyecto implementa un sistema **multi-agente capaz de realizar investigación técnica profunda de forma autónoma**, utilizando exclusivamente **LLMs Open Source** y una **arquitectura de grafo cíclico con auto-corrección**.
-
----
-
-# 🎯 Motivación del Proyecto
-
-Los pipelines **RAG tradicionales** suelen fallar ante:
-
-- consultas complejas  
-- información contradictoria  
-- falta de verificación de fuentes  
-
-Este sistema resuelve el problema mediante un flujo **Plan → Execute → Verify**, donde un **agente crítico** valida la veracidad de las respuestas antes de darlas por finalizadas.
-
-Esto reduce las **alucinaciones en aproximadamente un ~30%** (estimado mediante evaluaciones en Langfuse).
+Este proyecto implementa un sistema **multi-agente** capaz de realizar investigación técnica profunda, combinando **documentos locales (RAG)** con **búsquedas en tiempo real (Web Search)**, utilizando una arquitectura de **grafo cíclico con auto-corrección**.
 
 ---
 
 # 🏗️ Arquitectura del Sistema
 
-## Componentes Clave
+## Flujo de Trabajo (Iterativo)
 
-**Orquestación**
-- LangGraph para gestionar el estado y la lógica de re-intento (loops)
+A diferencia de los sistemas lineales, este laboratorio utiliza un **ciclo de 3 pasos mínimos** que se repiten hasta alcanzar la excelencia:
 
-**Inferencia Local**
-- Integración con Hugging Face mediante **vLLM / Ollama**
-- Modelos utilizados:
-  - Llama-3.1-8B
-  - Mistral-Nemo
+1. **Investigador (RAG)**  
+   Extrae conocimiento de la base de datos vectorial local.
 
-**Memoria & Estado**
-- Uso de **TypedDict** para mantener:
-  - el hilo de investigación
-  - las fuentes recuperadas
+2. **Crítico (Web Search)**  
+   Contrasta la información local con la red (**DuckDuckGo**) y evalúa si la respuesta es completa.
 
-**Observabilidad**
-- **Langfuse** para:
-  - tracing completo
-  - gestión de prompts
-  - evaluación de fidelidad (Faithfulness)
+3. **Resumidor (Finalizador)**  
+   Consolida el conocimiento verificado en un **informe ejecutivo**.
+
+![texto_alternativo](images/editorjefe.png)
+
 
 ---
 
-# 🛠️ Stack Tecnológico
+# 🛠️ Stack Tecnológico Actualizado
 
 | Capa | Herramienta | Razón de elección |
-|-----|-------------|-------------------|
-| Agentes | LangGraph | Soporta ciclos y persistencia de estado mejor que LangChain puro |
-| Modelos (LLM) | Llama-3.1-8B | Buen equilibrio entre latencia y seguimiento de instrucciones en local |
-| Embeddings | sentence-transformers/all-MiniLM-L6-v2 | Alta eficiencia en CPU/GPU |
-| Database | ChromaDB / Qdrant | Vector store ligero y open-source |
-| Monitoring | Langfuse | Tracing de pasos intermedios y debugging de agent thoughts |
+|---|---|---|
+| Orquestación | **LangGraph** | Gestión de estado y ciclos de revisión (loops/grafos). |
+| Modelos (LLM) | **Lopenai/gpt-oss-120b** | Inferencia local privada y potente. |
+| Buscador | **DuckDuckGo Search** | Búsqueda web anónima sin necesidad de API Keys complejas. |
+| Observabilidad | **Langfuse** | Tracing completo de la "mente" del agente y sus iteraciones. |
+| Gestor de Paquetes | **Poetry** | Gestión robusta de dependencias y entornos virtuales. |
+
+![texto_alternativo](images/langfuseInterfaz.png.png)
+
 
 ---
 
 # 🚀 Lógica de Auto-Corrección (The Router)
 
-El núcleo del proyecto es la capacidad del sistema para **decidir si una investigación es suficiente**.
-
-Implementamos una **arista condicional** basada en la evaluación del nodo **Reviewer**.
+El sistema utiliza **aristas condicionales** para decidir si la investigación debe continuar.  
+Si el **Crítico detecta lagunas**, el flujo vuelve al **Investigador** con instrucciones específicas de mejora.
 
 ```python
-def route_after_review(state: AgentState):
-    # Lógica de decisión técnica
-    
-    if state["revisions_count"] >= 3:
-        return "finalizer"  # salida de seguridad por límite de intentos
-    
-    if "FAIL" in state["critique"]:
-        return "researcher" # reintento de búsqueda con feedback
-    
-    return "finalizer"      # aprobado
+# Ejemplo de la lógica de control en el grafo
+if state["revisions_count"] >= 3:
+    return "finalizer"  # Límite de seguridad para evitar costes/tiempo infinito
 ```
 
-Este sistema permite:
+![texto_alternativo](images/grafo.png)
 
-- reintentar investigaciones incompletas  
-- evitar loops infinitos  
-- garantizar una respuesta validada
+# 💻 Instalación
 
----
 
-# 📈 Observabilidad y Evaluación
+```# 1. Clonar y entrar
+git clone https://github.com/tu-usuario/multi-agent-research-lab.git
+cd multi-agent-research-lab
 
-A diferencia de otros proyectos, este incluye una suite de evaluación **LLM-as-a-Judge**.
+# 2. Instalar con Poetry
+poetry install
 
-### Características
+# 3. Configurar entorno (.env)
+LANGFUSE_PASS=
+LANGFUSE_USER=
+LANGFUSE_MAIL=
 
-**Traceability**
-- Cada ejecución genera un **ID único en Langfuse**
+LANGFUSE_PUBLIC_KEY=
+LANGFUSE_SECRET_KEY=
+LANGFUSE_HOST=""
 
-**Dataset Testing**
-- Dataset interno de **20 preguntas complejas**
-- Permite medir el **Success Rate** del pipeline de revisión
+HF_TOKEN = ""
 
----
-
-# 🛠️ Instalación y Uso Local
-
-```bash
-# Clonar repositorio
-git clone https://github.com/tu-usuario/agentic-rag-os.git
-
-# Instalar dependencias (Python 3.10+ recomendado)
-pip install -r requirements.txt
-
-# Levantar servicios (Langfuse + VectorDB)
-docker-compose up -d
-
-# Ejecutar el agente
-python main.py --query "Explica las vulnerabilidades de reentrada en Solidity"
+# 4. Ejecutar el laboratorio
+poetry run python -m main
 ```
 
----
+## Estructura del repositorio:
 
-# 🧠 Lecciones Aprendidas
-
-**Cuantización**
-- El uso de modelos en **4-bit** puede afectar la capacidad de razonamiento del agente planificador.
-
-**Control de Bucles**
-- Es crucial mantener **contadores de estado** para evitar loops infinitos en grafos cíclicos.
-
-**Prompt Engineering**
-- Existen diferencias importantes entre prompts diseñados para:
-  - modelos OpenAI
-  - modelos open-source como Llama-3 en local
-
----
-
-# 📌 Futuras Mejoras
-
-- Integración con **rerankers neuronales**
-- Mejor sistema de evaluación automática
-- Soporte para **multi-document reasoning**
-- UI para visualización del grafo de agentes
-
----
-
-# 📜 Licencia
-
-MIT License
+![texto_alternativo](images/estructura.png)
 
 
-
-
-
-http://localhost:11434/api/tags con esto puedo ver mis modelos:
-
-{
-"models": [
-{
-"name": "phi4-mini:latest",
-"model": "phi4-mini:latest",
-"modified_at": "2026-02-24T09:36:19.5976155+01:00",
-"size": 2491876774,
-"digest": "78fad5d182a7c33065e153a5f8ba210754207ba9d91973f57dffa7f487363753",
-"details": {
-"parent_model": "",
-"format": "gguf",
-"family": "phi3",
-"families": [
-"phi3"
-],
-"parameter_size": "3.8B",
-"quantization_level": "Q4_K_M"
-}
-},
-{
-"name": "llama3.2:3b",
-"model": "llama3.2:3b",
-"modified_at": "2026-02-24T09:32:35.6753865+01:00",
-"size": 2019393189,
-"digest": "a80c4f17acd55265feec403c7aef86be0c25983ab279d83f3bcd3abbcb5b8b72",
-"details": {
-"parent_model": "",
-"format": "gguf",
-"family": "llama",
-"families": [
-"llama"
-],
-"parameter_size": "3.2B",
-"quantization_level": "Q4_K_M"
-}
-}
-]
-}
-
-ollama no funcionó por temas de gpu y tuve que usar modelos mas pequeños de Hugging Face
-ni si quiera sirvieron, tuve que probar en collab y kaggle kernels pero me era complicado vincularlo con vscode de forma profesional.. alfinal inferencia a gpt de  hugging fase
-
-El Flujo de Información (La "Posta")
-El Investigador (investigador):
-
-Recibe la task (la pregunta).
-
-Genera un texto largo, técnico y quizás un poco desordenado.
-
-Lo guarda en: state["draft"].
-
-El Crítico (critico):
-
-Lee el state["draft"] que dejó el anterior.
-
-No escribe una respuesta nueva sobre el tema, sino que escribe una crítica.
-
-Lo guarda en: state["critique"].
-
-El Router (_should_continue):
-
-Mira state["critique"]. Si dice "APROBADO", manda la pelota al Resumidor. Si no, devuelve la pelota al Investigador (quien leerá la crítica para mejorar el borrador).
-
-El Resumidor (resumidor):
-
-Lee el state["draft"] definitivo (el que ya pasó el filtro del crítico).
-
-Su trabajo es "limpiar": quita paja, da formato bonito y resume.
-
-Lo guarda en: state["final_summary"].
+## Extra: Langfuse te ayuda a estimar el gasto de tus agentes
+![texto_alternativo](images/simulación.png)
