@@ -6,6 +6,7 @@ class AgentState(TypedDict):
     plan: List[str]
     draft: str
     critique: str
-    # Annotated + operator.add permite que las listas se sumen en lugar de sobrescribirse
+    final_summary: str  # Para el resultado del resumidor
+    # Annotated + operator.add permite que las listas se sumen
     content_sources: Annotated[List[str], operator.add] 
     revision_count: int

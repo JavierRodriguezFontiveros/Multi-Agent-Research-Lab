@@ -192,3 +192,33 @@ http://localhost:11434/api/tags con esto puedo ver mis modelos:
 }
 
 ollama no funcionó por temas de gpu y tuve que usar modelos mas pequeños de Hugging Face
+ni si quiera sirvieron, tuve que probar en collab y kaggle kernels pero me era complicado vincularlo con vscode de forma profesional.. alfinal inferencia a gpt de  hugging fase
+
+El Flujo de Información (La "Posta")
+El Investigador (investigador):
+
+Recibe la task (la pregunta).
+
+Genera un texto largo, técnico y quizás un poco desordenado.
+
+Lo guarda en: state["draft"].
+
+El Crítico (critico):
+
+Lee el state["draft"] que dejó el anterior.
+
+No escribe una respuesta nueva sobre el tema, sino que escribe una crítica.
+
+Lo guarda en: state["critique"].
+
+El Router (_should_continue):
+
+Mira state["critique"]. Si dice "APROBADO", manda la pelota al Resumidor. Si no, devuelve la pelota al Investigador (quien leerá la crítica para mejorar el borrador).
+
+El Resumidor (resumidor):
+
+Lee el state["draft"] definitivo (el que ya pasó el filtro del crítico).
+
+Su trabajo es "limpiar": quita paja, da formato bonito y resume.
+
+Lo guarda en: state["final_summary"].

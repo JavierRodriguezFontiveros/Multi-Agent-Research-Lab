@@ -1,7 +1,7 @@
 import requests
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import BaseMessage, AIMessage
-from langchain_core.outputs import ChatResult, ChatGeneration # <--- IMPORTANTE
+from langchain_core.outputs import ChatResult, ChatGeneration 
 from typing import Any, List, Optional
 
 class HFRouterModel(BaseChatModel):

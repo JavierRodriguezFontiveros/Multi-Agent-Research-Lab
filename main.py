@@ -71,15 +71,21 @@ class ResearchApp:
             self._print_results(final_state)
 
     def _print_results(self, state: dict):
-        """Método privado para formatear la salida."""
-        print("\n" + "="*30)
-        print("✅ PROCESO FINALIZADO")
-        print("="*30)
-        print(f"Versiones realizadas: {state.get('revision_count')}")
-        print(f"Resumen del resultado:\n{state.get('draft', '')[:500]}...")
-        print("="*30)
+            print("\n" + "="*30)
+            print("✅ PROCESO FINALIZADO")
+            print("="*30)
+            print(f"Versiones realizadas: {state.get('revision_count')}")
+            
+            # Si el resumidor trabajó, mostramos su output
+            if state.get("final_summary"):
+                print("\n📄 RESUMEN EJECUTIVO FINAL:")
+                print(state.get("final_summary"))
+            else:
+                print(f"\n📝 BORRADOR (Sin resumen):\n{state.get('draft', '')[:500]}...")
+            
+            print("="*30)
 
 if __name__ == "__main__":
     app = ResearchApp()
-    pregunta = "¿Cuantos días tiene una semana?"
+    pregunta = "¿Qué apartados principales debe tener un curriculum?"
     app.run(pregunta)

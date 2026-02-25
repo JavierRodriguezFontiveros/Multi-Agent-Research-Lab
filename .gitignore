@@ -6,3 +6,5 @@
 
 # Variables de entorno
 .env
+
+db
